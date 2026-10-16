@@ -1,0 +1,47 @@
+{
+  "model": "flux2-klein-9b",
+  "modelName": "FLUX.2 [klein] 9B",
+  "files": [
+    "leejet/FLUX.2-klein-9B-GGUF/flux-2-klein-9b-Q8_0.gguf",
+    "unsloth/Qwen3-8B-GGUF/Qwen3-8B-Q4_K_M.gguf",
+    "Comfy-Org/flux2-dev/split_files/vae/flux2-vae.safetensors"
+  ],
+  "prompt": "A delighted six-year-old girl blowing an enormous soap bubble in a sunlit meadow, and inside the bubble a tiny perfect world is visible: a miniature mountain, a waterfall and a rainbow. Her cheeks puffed out, wind-tossed hair, wildflowers around her. Bright spring morning, soft diffused light, 85mm lens at f/1.8, hyper-detailed bubble surface with swirling thin-film colours.",
+  "negativePrompt": "",
+  "seed": 544913254,
+  "width": 1024,
+  "height": 1024,
+  "steps": 4,
+  "cfgScale": 1,
+  "sampler": "euler",
+  "scheduler": "flux2",
+  "settings": {
+    "width": 1024,
+    "height": 1024,
+    "steps": 4,
+    "cfgScale": 1,
+    "sampler": "euler",
+    "scheduler": "default",
+    "negativePrompt": "",
+    "clipSkip": -1,
+    "offloadToCpu": true,
+    "textEncoderOnCpu": false,
+    "vaeOnCpu": false,
+    "vaeTiling": false,
+    "flashAttention": "auto"
+  },
+  "loras": [
+    {
+      "name": "UltraReal - Krea2, Klein9b",
+      "file": "ultra_real_v5_pro.safetensors",
+      "weight": 0.8,
+      "family": "flux2-klein-9b",
+      "source": "https://civitai.com/models/2462105?modelVersionId=3370879"
+    }
+  ],
+  "generationSeconds": 36.53,
+  "modelLoadSeconds": 0.75,
+  "totalSeconds": 37.31,
+  "engine": "stable-diffusion.cpp unknown (1d0a58a)",
+  "createdAt": "2026-10-16T11:37:43.9236223Z"
+}

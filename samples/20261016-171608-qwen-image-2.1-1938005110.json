@@ -1,0 +1,38 @@
+{
+  "model": "qwen-image-2.1",
+  "modelName": "Qwen-Image 2.1",
+  "files": [
+    "leejet/Qwen-Image-2.1-GGUF/qwen_image_2.1-Q8_0.gguf",
+    "Qwen/Qwen3-VL-8B-Instruct-GGUF/Qwen3VL-8B-Instruct-Q4_K_M.gguf",
+    "Comfy-Org/Qwen-Image-2.1/vae/qwen_image_2.1_vae_bf16.safetensors"
+  ],
+  "prompt": "A street violinist playing joyfully under a clear umbrella on a rain-soaked neon-lit alley at night, surrounded by giant iridescent soap bubbles floating in the air, each reflecting the pink and cyan lights. Passersby smiling and pausing to listen. Wet pavement mirror reflections, steam from a noodle stall, 85mm portrait lens, bokeh city lights, cinematic teal and magenta palette.",
+  "negativePrompt": "low quality, blurry, distorted text, watermark",
+  "seed": 1938005110,
+  "width": 1024,
+  "height": 1024,
+  "steps": 30,
+  "cfgScale": 4,
+  "sampler": "euler",
+  "scheduler": "flux",
+  "settings": {
+    "width": 1024,
+    "height": 1024,
+    "steps": 30,
+    "cfgScale": 4,
+    "sampler": "euler",
+    "scheduler": "default",
+    "negativePrompt": "low quality, blurry, distorted text, watermark",
+    "clipSkip": -1,
+    "offloadToCpu": true,
+    "textEncoderOnCpu": false,
+    "vaeOnCpu": false,
+    "vaeTiling": false,
+    "flashAttention": "auto"
+  },
+  "generationSeconds": 178.53,
+  "modelLoadSeconds": 0.55,
+  "totalSeconds": 180.28,
+  "engine": "stable-diffusion.cpp unknown (1d0a58a)",
+  "createdAt": "2026-10-16T11:46:08.5078897Z"
+}

@@ -1,0 +1,38 @@
+{
+  "model": "flux2-klein-9b",
+  "modelName": "FLUX.2 [klein] 9B",
+  "files": [
+    "leejet/FLUX.2-klein-9B-GGUF/flux-2-klein-9b-Q8_0.gguf",
+    "unsloth/Qwen3-8B-GGUF/Qwen3-8B-Q4_K_M.gguf",
+    "Comfy-Org/flux2-dev/split_files/vae/flux2-vae.safetensors"
+  ],
+  "prompt": "Traditional Tamil Nadu coffee powder packet with \u0027Kumbakonam filter Coffee\u0027 in bold traditional script, vibrant colors, kraft paper texture, studio lighting. An elderly man in veshti and white shirt holding the packet, smiling, standing in a Chennai street shop with wooden shelves and spices, warm golden light, detailed textures. show coffee beans in the packet cover. ensure all text are in english,",
+  "negativePrompt": "shop banners and name board are in english only. no non-english text anywhere",
+  "seed": 323687576,
+  "width": 1024,
+  "height": 1024,
+  "steps": 4,
+  "cfgScale": 1,
+  "sampler": "euler",
+  "scheduler": "flux2",
+  "settings": {
+    "width": 1024,
+    "height": 1024,
+    "steps": 4,
+    "cfgScale": 1,
+    "sampler": "euler",
+    "scheduler": "default",
+    "negativePrompt": "shop banners and name board are in english only. no non-english text anywhere",
+    "clipSkip": -1,
+    "offloadToCpu": true,
+    "textEncoderOnCpu": false,
+    "vaeOnCpu": false,
+    "vaeTiling": false,
+    "flashAttention": "auto"
+  },
+  "generationSeconds": 17.27,
+  "modelLoadSeconds": 0,
+  "totalSeconds": 17.27,
+  "engine": "stable-diffusion.cpp unknown (1d0a58a)",
+  "createdAt": "2026-10-16T09:32:42.554853Z"
+}

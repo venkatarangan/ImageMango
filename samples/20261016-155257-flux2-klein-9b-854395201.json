@@ -1,0 +1,47 @@
+{
+  "model": "flux2-klein-9b",
+  "modelName": "FLUX.2 [klein] 9B",
+  "files": [
+    "leejet/FLUX.2-klein-9B-GGUF/flux-2-klein-9b-Q8_0.gguf",
+    "unsloth/Qwen3-8B-GGUF/Qwen3-8B-Q4_K_M.gguf",
+    "Comfy-Org/flux2-dev/split_files/vae/flux2-vae.safetensors"
+  ],
+  "prompt": "Cinematic wide shot of a desert caravan at dusk under a giant ringed planet, long shadows, volumetric dust, anamorphic flare",
+  "negativePrompt": "",
+  "seed": 854395201,
+  "width": 1024,
+  "height": 1024,
+  "steps": 4,
+  "cfgScale": 1,
+  "sampler": "euler",
+  "scheduler": "flux2",
+  "settings": {
+    "width": 1024,
+    "height": 1024,
+    "steps": 4,
+    "cfgScale": 1,
+    "sampler": "euler",
+    "scheduler": "default",
+    "negativePrompt": "",
+    "clipSkip": -1,
+    "offloadToCpu": true,
+    "textEncoderOnCpu": false,
+    "vaeOnCpu": false,
+    "vaeTiling": false,
+    "flashAttention": "auto"
+  },
+  "loras": [
+    {
+      "name": "UltraReal - Krea2, Klein9b",
+      "file": "ultra_real_v5_pro.safetensors",
+      "weight": 0.8,
+      "family": "flux2-klein-9b",
+      "source": "https://civitai.com/models/2462105?modelVersionId=3370879"
+    }
+  ],
+  "generationSeconds": 29.77,
+  "modelLoadSeconds": 0,
+  "totalSeconds": 29.77,
+  "engine": "stable-diffusion.cpp unknown (1d0a58a)",
+  "createdAt": "2026-10-16T10:22:57.6468601Z"
+}

@@ -1,0 +1,47 @@
+{
+  "model": "flux2-klein-9b",
+  "modelName": "FLUX.2 [klein] 9B",
+  "files": [
+    "leejet/FLUX.2-klein-9B-GGUF/flux-2-klein-9b-Q8_0.gguf",
+    "unsloth/Qwen3-8B-GGUF/Qwen3-8B-Q4_K_M.gguf",
+    "Comfy-Org/flux2-dev/split_files/vae/flux2-vae.safetensors"
+  ],
+  "prompt": "Macro photograph of a miniature village built inside a vintage porcelain teacup, with tiny stone cottages, lit windows, moss-green hills and a little wooden bridge over a stream made of poured milk. Wisps of steam rising like clouds over the rooftops. A tiny hiker with a backpack walks up the rim. Warm kitchen morning light, extremely shallow depth of field, tilt-shift feel, fine ceramic crackle glaze texture.",
+  "negativePrompt": "",
+  "seed": 1812217208,
+  "width": 1024,
+  "height": 1024,
+  "steps": 4,
+  "cfgScale": 1,
+  "sampler": "euler",
+  "scheduler": "flux2",
+  "settings": {
+    "width": 1024,
+    "height": 1024,
+    "steps": 4,
+    "cfgScale": 1,
+    "sampler": "euler",
+    "scheduler": "default",
+    "negativePrompt": "",
+    "clipSkip": -1,
+    "offloadToCpu": true,
+    "textEncoderOnCpu": false,
+    "vaeOnCpu": false,
+    "vaeTiling": false,
+    "flashAttention": "auto"
+  },
+  "loras": [
+    {
+      "name": "UltraReal - Krea2, Klein9b",
+      "file": "ultra_real_v5_pro.safetensors",
+      "weight": 0.8,
+      "family": "flux2-klein-9b",
+      "source": "https://civitai.com/models/2462105?modelVersionId=3370879"
+    }
+  ],
+  "generationSeconds": 21.67,
+  "modelLoadSeconds": 0,
+  "totalSeconds": 21.67,
+  "engine": "stable-diffusion.cpp unknown (1d0a58a)",
+  "createdAt": "2026-10-16T11:39:53.2005399Z"
+}

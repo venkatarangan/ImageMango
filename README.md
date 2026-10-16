@@ -4,8 +4,8 @@ A fast, native Windows 11 app that makes images on your own PC with current open
 Python, no cloud.
 
 > **Adults only (18+).** ImageMango can download and run **uncensored and not-for-all-audiences models**, and its
-> LoRA browser can show adult content when you switch that on. This repository contains **no models and no images**:
-> only source code. Models are downloaded from Hugging Face by the app when you ask, under their own licences (several
+> LoRA browser can show adult content when you switch that on. This repository contains **no models**: only source
+> code, plus a few safe-for-work sample images and screenshots. Models are downloaded from Hugging Face by the app when you ask, under their own licences (several
 > are non-commercial). You are responsible for how you use them and for following the law where you live.
 
 ## Why I built it
@@ -25,6 +25,15 @@ app that picks good models and good settings for the hardware it runs on.
 - Saves the prompt, model and settings inside each PNG (visible in Explorer › Properties › Details); **Reuse** puts
   them back later.
 - Incognito mode, an optional NSFW classifier (off by default), and hideable side panels for a big preview.
+
+![ImageMango main window](screenshots/main-screen-16Oct2026.png)
+
+The prompt helper improving a short prompt for FLUX.2 [klein]:
+
+<img src="screenshots/prompt-helper-screen-16Oct2026.png" width="560" alt="ImageMango prompt helper">
+
+**See what it makes:** [SAMPLES.md](SAMPLES.md) is a small gallery of images with the prompt, model and settings
+behind each one.
 
 ## Fits your PC
 
