@@ -1,0 +1,696 @@
+<Window x:Class="ImageMango.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="clr-namespace:ImageMango.UI"
+        Title="ImageMango" Height="960" Width="1640" MinWidth="1200" MinHeight="720"
+        WindowStartupLocation="CenterScreen" FontSize="15" Icon="Assets/app.ico"
+        AllowDrop="True" PreviewDragOver="Window_PreviewDragOver" PreviewDrop="Window_PreviewDrop" PreviewKeyDown="Window_PreviewKeyDown">
+    <Window.Resources>
+        <!-- Wrap long tooltip text (the setting explanations) instead of one very wide line. -->
+        <Style TargetType="ToolTip" BasedOn="{StaticResource {x:Type ToolTip}}">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" TextWrapping="Wrap" MaxWidth="440" />
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Modifiers="Ctrl" Key="Return" Command="{Binding GenerateCommand}" />
+        <KeyBinding Key="Escape" Command="{Binding CancelCommand}" />
+        <KeyBinding Key="F11" Command="{Binding TogglePreviewFocusCommand}" />
+        <KeyBinding Modifiers="Ctrl+Shift" Key="M" Command="{Binding ToggleModelsPanelCommand}" />
+        <KeyBinding Modifiers="Ctrl+Shift" Key="S" Command="{Binding ToggleSettingsPanelCommand}" />
+    </Window.InputBindings>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <!-- The side columns' widths are set in code: hidden panels shrink to a thin strip (see ApplyPanels). -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="ModelsColumn" Width="400" MinWidth="300" />
+            <ColumnDefinition x:Name="ModelsSplitterColumn" Width="5" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition x:Name="SettingsSplitterColumn" Width="5" />
+            <ColumnDefinition x:Name="SettingsColumn" Width="430" MinWidth="320" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Hidden model list: a strip with a button to show it again -->
+        <Border Grid.Column="0" Margin="8,12,0,8" Padding="2" CornerRadius="6" Background="#14808080"
+                Visibility="{Binding ModelsPanelOpen, Converter={StaticResource InverseBoolToVis}}">
+            <Button Command="{Binding ToggleModelsPanelCommand}" VerticalAlignment="Top" Padding="6,8"
+                    ToolTip="Show the model list (Ctrl+Shift+M)">
+                <StackPanel>
+                    <TextBlock Text="&#xE76C;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" HorizontalAlignment="Center" Margin="0,0,0,8" />
+                    <TextBlock Text="Models" HorizontalAlignment="Center">
+                        <TextBlock.LayoutTransform>
+                            <RotateTransform Angle="90" />
+                        </TextBlock.LayoutTransform>
+                    </TextBlock>
+                </StackPanel>
+            </Button>
+        </Border>
+
+        <!-- ============================================================ Models -->
+        <DockPanel Grid.Column="0" Margin="12,12,4,8" Visibility="{Binding ModelsPanelOpen, Converter={StaticResource BoolToVis}}">
+            <StackPanel DockPanel.Dock="Top">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Command="{Binding ToggleModelsPanelCommand}" Padding="8,4" VerticalAlignment="Center"
+                            ToolTip="Hide the model list to give the image more room (Ctrl+Shift+M). F11 hides both side panels.">
+                        <TextBlock Text="&#xE76B;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" />
+                    </Button>
+                    <TextBlock Text="Models" FontSize="21" FontWeight="SemiBold" />
+                </DockPanel>
+                <TextBlock Text="{Binding CatalogInfo}" Style="{StaticResource Hint}" Margin="0,2,0,6" />
+                <WrapPanel>
+                    <CheckBox Content="Filtered" IsChecked="{Binding ShowFiltered}" Margin="0,0,12,0" />
+                    <CheckBox Content="Unfiltered" IsChecked="{Binding ShowUnfiltered}" Margin="0,0,12,0" />
+                    <CheckBox Content="Not for all audiences" IsChecked="{Binding ShowNfaa}" />
+                </WrapPanel>
+            </StackPanel>
+
+            <ListBox ItemsSource="{Binding ModelsView}" SelectedItem="{Binding Selected}" Margin="0,8,0,0"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
+                <ListBox.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="15" Margin="4,10,0,4" Opacity="0.85" />
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ListBox.GroupStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type ui:ModelItemViewModel}">
+                        <StackPanel Margin="2,6">
+                            <DockPanel>
+                                <Border DockPanel.Dock="Right" CornerRadius="3" Padding="6,1" VerticalAlignment="Center"
+                                        Background="{Binding Category, Converter={StaticResource CategoryToBrush}}">
+                                    <TextBlock Text="{Binding CategoryLabel}" Foreground="White" FontSize="12" />
+                                </Border>
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="16" TextTrimming="CharacterEllipsis" />
+                            </DockPanel>
+                            <TextBlock Text="{Binding Subtitle}" Style="{StaticResource Hint}" />
+                            <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                <Ellipse Width="8" Height="8" Fill="{Binding Fit, Converter={StaticResource FitToBrush}}" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding FitText}" FontSize="14" />
+                            </StackPanel>
+                            <TextBlock Text="{Binding SizeText}" Style="{StaticResource Hint}" />
+                            <TextBlock Text="{Binding StatusText}" FontSize="14" Margin="0,2,0,0" TextWrapping="Wrap" />
+                            <ProgressBar Height="4" Margin="0,4,0,0" Maximum="100" Value="{Binding DownloadPercent}"
+                                         Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVis}}" />
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Button Content="Download" Padding="10,3" Margin="0,0,6,0"
+                                        Command="{Binding DataContext.DownloadCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"
+                                        Visibility="{Binding IsReady, Converter={StaticResource InverseBoolToVis}}" />
+                                <Button Content="Pause" Padding="10,3" Margin="0,0,6,0"
+                                        Command="{Binding DataContext.CancelDownloadCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"
+                                        Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVis}}" />
+                                <Button Content="Delete" Padding="10,3" Margin="0,0,6,0"
+                                        Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
+                                <Button Content="Page" Padding="10,3"
+                                        Command="{Binding DataContext.OpenModelPageCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+
+        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="Transparent"
+                      Visibility="{Binding ModelsPanelOpen, Converter={StaticResource BoolToVis}}" />
+
+        <!-- ============================================================ Prompt + image -->
+        <Grid Grid.Column="2" Margin="4,12,4,8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Click="PromptHelper_Click" Padding="10,3" Margin="0,0,8,0" VerticalAlignment="Bottom"
+                            ToolTip="Improve your prompt, or write one from an idea, for the selected model. A small AI model runs on this PC; nothing is sent anywhere.">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE945;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Text="Prompt helper" />
+                        </StackPanel>
+                    </Button>
+                    <Button DockPanel.Dock="Right" Click="SamplePrompts_Click" Padding="10,3" Margin="0,0,8,0" VerticalAlignment="Bottom"
+                            ToolTip="Prompts that show off what this model does best. Pick one to replace the prompt below.">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE82F;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Text="Sample prompts" />
+                            <TextBlock Text="&#xE70D;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="10" VerticalAlignment="Center" Margin="6,0,0,0" />
+                        </StackPanel>
+                    </Button>
+                    <TextBlock DockPanel.Dock="Right" Style="{StaticResource InfoIcon}" Margin="4,0,14,0" VerticalAlignment="Bottom"
+                               ToolTip="{Binding CurrentSettings.Help[Incognito]}" />
+                    <CheckBox DockPanel.Dock="Right" IsChecked="{Binding Incognito}" VerticalAlignment="Bottom">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE727;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <TextBlock Text="Incognito" />
+                        </StackPanel>
+                    </CheckBox>
+                    <TextBlock Text="{Binding Selected.Name, StringFormat=Prompt for {0}, FallbackValue=Prompt}" FontWeight="SemiBold"
+                               VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis" />
+                </DockPanel>
+                <TextBox Text="{Binding Prompt, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap"
+                         Height="100" VerticalScrollBarVisibility="Auto" Margin="0,4,0,0" FontSize="16" />
+            </StackPanel>
+
+            <StackPanel Grid.Row="1" Margin="0,8,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Negative prompt (used when CFG &gt; 1)" Style="{StaticResource Hint}" VerticalAlignment="Center" />
+                    <TextBlock Style="{StaticResource InfoIcon}" FontSize="13.5" ToolTip="{Binding CurrentSettings.Help[NegativePrompt]}" />
+                </StackPanel>
+                <TextBox Text="{Binding CurrentSettings.NegativePrompt, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"
+                         Height="52" VerticalScrollBarVisibility="Auto" Margin="0,2,0,0" AcceptsReturn="False" />
+            </StackPanel>
+
+            <!-- ============================================ Start image (image-to-image) + LoRA add-ons -->
+            <Grid Grid.Row="2" Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Start image card -->
+                <Border Grid.Column="0" Style="{StaticResource Card}">
+                    <Grid>
+                        <!-- Empty: invite the user to pick, drop or paste a picture -->
+                        <DockPanel Visibility="{Binding HasInitImage, Converter={StaticResource InverseBoolToVis}}">
+                            <Button DockPanel.Dock="Right" Command="{Binding PickInitImageCommand}" Padding="10,4" VerticalAlignment="Center"
+                                    ToolTip="Pick a picture to start from">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE8B9;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                    <TextBlock Text="Choose…" />
+                                </StackPanel>
+                            </Button>
+                            <TextBlock DockPanel.Dock="Left" Text="&#xEB9F;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="26"
+                                       VerticalAlignment="Center" Margin="0,0,10,0" Opacity="0.7" />
+                            <StackPanel VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Start from an image" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding CurrentSettings.Help[StartImage]}" />
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Hint}" Text="Optional: restyle or vary a picture. Choose, drop or paste (Ctrl+V) one." />
+                            </StackPanel>
+                        </DockPanel>
+
+                        <!-- Set: thumbnail, how much to change, remove -->
+                        <DockPanel Visibility="{Binding HasInitImage, Converter={StaticResource BoolToVis}}">
+                            <Border DockPanel.Dock="Left" CornerRadius="4" ClipToBounds="True" Margin="0,0,10,0" VerticalAlignment="Center"
+                                    BorderThickness="1" BorderBrush="#40808080">
+                                <Image Source="{Binding InitImage}" Height="72" MaxWidth="110" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"
+                                       ToolTip="{Binding InitImageName}" />
+                            </Border>
+                            <Button DockPanel.Dock="Right" Command="{Binding ClearInitImageCommand}" Padding="8,4" VerticalAlignment="Top" Margin="6,0,0,0"
+                                    ToolTip="Stop using the start image (back to text-to-image)">
+                                <TextBlock Text="&#xE711;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" />
+                            </Button>
+                            <StackPanel VerticalAlignment="Center">
+                                <DockPanel>
+                                    <TextBlock Text="Start image" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding CurrentSettings.Help[StartImage]}" />
+                                    <TextBlock Text="{Binding InitImageName}" Style="{StaticResource Hint}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                </DockPanel>
+                                <DockPanel Margin="0,2,0,0">
+                                    <TextBlock Text="Change" VerticalAlignment="Center" />
+                                    <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding CurrentSettings.Help[Strength]}" />
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding InitStrength, StringFormat=0.00}" Width="40" TextAlignment="Right" VerticalAlignment="Center" />
+                                    <Slider Minimum="0.05" Maximum="1" Value="{Binding InitStrength}" TickFrequency="0.05" IsSnapToTickEnabled="True"
+                                            SmallChange="0.05" LargeChange="0.1" VerticalAlignment="Center" ToolTip="Left: stay close to the picture. Right: change a lot." />
+                                </DockPanel>
+                                <TextBlock Text="{Binding InitStrengthText}" Style="{StaticResource Hint}" />
+                            </StackPanel>
+                        </DockPanel>
+                    </Grid>
+                </Border>
+
+                <!-- LoRA card -->
+                <Border Grid.Column="2" Style="{StaticResource Card}">
+                    <DockPanel>
+                        <DockPanel DockPanel.Dock="Top">
+                            <Button DockPanel.Dock="Right" Click="AddLora_Click" Padding="10,4" VerticalAlignment="Top"
+                                    ToolTip="Switch on a downloaded LoRA, find new ones for this model, or add one from a link or a file">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE710;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                    <TextBlock Text="Add LoRA" />
+                                    <TextBlock Text="&#xE70D;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="10" VerticalAlignment="Center" Margin="6,0,0,0" />
+                                </StackPanel>
+                            </Button>
+                            <TextBlock DockPanel.Dock="Left" Text="&#xE790;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="26"
+                                       VerticalAlignment="Top" Margin="0,0,10,0" Opacity="0.7"
+                                       Visibility="{Binding HasActiveLoras, Converter={StaticResource InverseBoolToVis}}" />
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="LoRA add-ons" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding CurrentSettings.Help[Loras]}" />
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Hint}" Visibility="{Binding HasActiveLoras, Converter={StaticResource InverseBoolToVis}}"
+                                           Text="{Binding SelectedFamilyName, StringFormat='Optional: styles, characters and looks for {0} models.'}" />
+                            </StackPanel>
+                        </DockPanel>
+                        <StackPanel DockPanel.Dock="Bottom" Margin="0,4,0,0" Visibility="{Binding IsLoraDownloading, Converter={StaticResource BoolToVis}}">
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right" Content="Cancel" Command="{Binding CancelLoraDownloadCommand}" Padding="8,1" FontSize="13" Margin="6,0,0,0" />
+                                <TextBlock Text="{Binding LoraDownloadText}" Style="{StaticResource Hint}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" VerticalAlignment="Center" />
+                            </DockPanel>
+                            <ProgressBar Height="4" Maximum="100" Value="{Binding LoraDownloadPercent, Mode=OneWay}" Margin="0,3,0,0" />
+                        </StackPanel>
+                        <ScrollViewer MaxHeight="104" VerticalScrollBarVisibility="Auto" Margin="0,4,0,0"
+                                      Visibility="{Binding HasActiveLoras, Converter={StaticResource BoolToVis}}">
+                            <ItemsControl ItemsSource="{Binding ActiveLoras}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type ui:LoraItemViewModel}">
+                                        <DockPanel Margin="0,1">
+                                            <Button DockPanel.Dock="Right" Padding="6,2" Margin="4,0,0,0" ToolTip="Switch this LoRA off"
+                                                    Command="{Binding DataContext.RemoveLoraCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">
+                                                <TextBlock Text="&#xE711;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="12" />
+                                            </Button>
+                                            <Button DockPanel.Dock="Right" Padding="6,2" Margin="4,0,0,0"
+                                                    ToolTip="{Binding TriggerWords, StringFormat=Add its trigger words to the prompt: {0}}"
+                                                    Visibility="{Binding HasTrigger, Converter={StaticResource BoolToVis}}"
+                                                    Command="{Binding DataContext.AddTriggerCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="&#xE710;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="11" VerticalAlignment="Center" Margin="0,0,4,0" />
+                                                    <TextBlock Text="trigger" FontSize="13" />
+                                                </StackPanel>
+                                            </Button>
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding Weight, StringFormat=0.00}" Width="38" TextAlignment="Right" VerticalAlignment="Center" FontSize="14" />
+                                            <Slider DockPanel.Dock="Right" Width="110" Minimum="0" Maximum="1.5" Value="{Binding Weight}" TickFrequency="0.05"
+                                                    IsSnapToTickEnabled="True" SmallChange="0.05" LargeChange="0.1" VerticalAlignment="Center" Margin="6,0,0,0"
+                                                    ToolTip="{Binding DataContext.CurrentSettings.Help[LoraWeight], RelativeSource={RelativeSource AncestorType=Window}}" />
+                                            <TextBlock DockPanel.Dock="Left" Text="&#xE7BA;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Foreground="#D08A00"
+                                                       VerticalAlignment="Center" Margin="0,0,5,0" ToolTip="{Binding FitText}" Background="Transparent"
+                                                       ToolTipService.InitialShowDelay="150" ToolTipService.ShowDuration="120000"
+                                                       Visibility="{Binding Warn, Converter={StaticResource BoolToVis}}" />
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding FitText}"
+                                                       ToolTipService.InitialShowDelay="300" ToolTipService.ShowDuration="120000" />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Border>
+            </Grid>
+
+            <WrapPanel Grid.Row="3" Margin="0,10,0,6" VerticalAlignment="Center">
+                <Button Content="Generate" Command="{Binding GenerateCommand}" Style="{DynamicResource AccentButtonStyle}" ToolTip="Ctrl+Enter. Esc cancels."
+                        Padding="24,7" FontSize="16" FontWeight="SemiBold" Margin="0,0,8,0" />
+                <Button Content="Cancel" Command="{Binding CancelCommand}" Padding="14,6" Margin="0,0,12,0" />
+                <TextBlock Text="Seed" Style="{StaticResource FieldLabelTight}" />
+                <TextBlock Style="{StaticResource InfoIcon}" Margin="6,0,8,0" ToolTip="{Binding CurrentSettings.Help[Seed]}" />
+                <TextBox Text="{Binding Seed}" Width="100" VerticalContentAlignment="Center" ToolTip="-1 = random" />
+                <Button Content="🎲" Command="{Binding RandomSeedCommand}" Padding="8,4" Margin="4,0,0,0" ToolTip="Random seed every time (-1)" />
+                <Button Content="♻" Command="{Binding ReuseSeedCommand}" Padding="8,4" Margin="4,0,12,0" ToolTip="Reuse the last seed" />
+                <TextBlock Text="Images" Style="{StaticResource FieldLabelTight}" />
+                <TextBlock Style="{StaticResource InfoIcon}" Margin="6,0,8,0" ToolTip="{Binding CurrentSettings.Help[BatchCount]}" />
+                <TextBox Text="{Binding BatchCount}" Width="50" VerticalContentAlignment="Center" Margin="0,0,12,0" />
+                <ComboBox ItemsSource="{Binding SizePresets}" Width="150" ToolTip="{Binding CurrentSettings.Help[SizePreset]}"
+                          SelectionChanged="SizePreset_SelectionChanged" />
+            </WrapPanel>
+
+            <Border Grid.Row="4" BorderThickness="1" BorderBrush="#40808080" CornerRadius="6" ClipToBounds="True">
+                <Grid>
+                    <TextBlock Text="Your image appears here." HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5"
+                               Visibility="{Binding CurrentImage, Converter={x:Static ui:NullToVisibleConverter.Instance}}" />
+                    <Image Source="{Binding CurrentImage}" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" Margin="4">
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentBlurred}" Value="True">
+                                        <Setter Property="Effect">
+                                            <Setter.Value>
+                                                <BlurEffect Radius="60" KernelType="Gaussian" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                    <Border Background="#C0202020" CornerRadius="6" Padding="16,10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="{Binding CurrentBlurred, Converter={StaticResource BoolToVis}}">
+                        <StackPanel>
+                            <TextBlock Text="Flagged by the NSFW filter" Foreground="White" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                            <Button Content="Reveal" Command="{Binding RevealCommand}" Margin="0,8,0,0" Padding="16,4" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                    <Border VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="8" Padding="8,4" CornerRadius="4" Background="#A0202020"
+                            Visibility="{Binding CurrentPath, Converter={x:Static ui:NullToCollapsedConverter.Instance}}">
+                        <!-- Buttons dock right so they stay visible; a long caption is trimmed (full text in its tooltip). -->
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                            <Button Content="Open" Command="{Binding OpenCurrentCommand}" Padding="8,2" Margin="8,0,0,0" FontSize="14" />
+                            <Button Command="{Binding UseCurrentAsInitCommand}" Padding="8,2" Margin="6,0,0,0" FontSize="14"
+                                    ToolTip="Start the next image from this one: change the prompt or the Change slider to vary or refine it">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE8B9;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                    <TextBlock Text="Use as start" />
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding ReuseCurrentCommand}" Padding="8,2" Margin="6,0,0,0" FontSize="14"
+                                    ToolTip="Put back this image's prompt, model, seed, size and settings, to remake or tweak it">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE8EE;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                    <TextBlock Text="Reuse" />
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding DeleteCurrentCommand}" Padding="8,2" Margin="6,0,0,0" FontSize="14"
+                                    ToolTip="Remove this image from the preview and Recent images, and delete the file (to the Recycle Bin; permanently in incognito)">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE74D;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                    <TextBlock Text="Delete" />
+                                </StackPanel>
+                            </Button>
+                            </StackPanel>
+                            <TextBlock Text="{Binding CurrentInfo}" ToolTip="{Binding CurrentInfo}" Foreground="White" FontSize="14"
+                                       TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                        </DockPanel>
+                    </Border>
+                    <!-- Hide/show both side panels: the preview gets the full width -->
+                    <Button VerticalAlignment="Top" HorizontalAlignment="Right" Margin="8" Padding="8,5" Opacity="0.85"
+                            Command="{Binding TogglePreviewFocusCommand}">
+                        <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="&#xE740;" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding PreviewFocused}" Value="True">
+                                            <Setter Property="Text" Value="&#xE73F;" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                <Setter Property="ToolTip" Value="Hide both side panels for a bigger image (F11)" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding PreviewFocused}" Value="True">
+                                        <Setter Property="ToolTip" Value="Show the model list and settings again (F11)" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <DockPanel Grid.Row="5" Margin="0,6,0,0">
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ElapsedText}" Margin="12,0,0,0" MinWidth="90" TextAlignment="Right"
+                           ToolTip="Time since you pressed Generate: model load, text encoding, sampling, decoding and saving. The total is also saved in each image's .json file." />
+                <TextBlock DockPanel.Dock="Right" Text="{Binding ProgressText}" Margin="8,0,0,0" MinWidth="120" TextAlignment="Right" />
+                <ProgressBar Height="6" Maximum="{Binding ProgressMax}" Value="{Binding ProgressValue}" VerticalAlignment="Center" />
+            </DockPanel>
+        </Grid>
+
+        <GridSplitter Grid.Column="3" Width="5" HorizontalAlignment="Stretch" Background="Transparent"
+                      Visibility="{Binding SettingsPanelOpen, Converter={StaticResource BoolToVis}}" />
+
+        <!-- Hidden settings: a strip with a button to show them again -->
+        <Border Grid.Column="4" Margin="0,12,8,8" Padding="2" CornerRadius="6" Background="#14808080"
+                Visibility="{Binding SettingsPanelOpen, Converter={StaticResource InverseBoolToVis}}">
+            <Button Command="{Binding ToggleSettingsPanelCommand}" VerticalAlignment="Top" Padding="6,8"
+                    ToolTip="Show the settings (Ctrl+Shift+S)">
+                <StackPanel>
+                    <TextBlock Text="&#xE76B;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" HorizontalAlignment="Center" Margin="0,0,0,8" />
+                    <TextBlock Text="Settings" HorizontalAlignment="Center">
+                        <TextBlock.LayoutTransform>
+                            <RotateTransform Angle="90" />
+                        </TextBlock.LayoutTransform>
+                    </TextBlock>
+                </StackPanel>
+            </Button>
+        </Border>
+
+        <!-- ============================================================ Settings -->
+        <ScrollViewer Grid.Column="4" VerticalScrollBarVisibility="Auto" Margin="4,12,0,8" Padding="0,0,12,0"
+                      Visibility="{Binding SettingsPanelOpen, Converter={StaticResource BoolToVis}}">
+            <StackPanel>
+                <DockPanel>
+                    <Button DockPanel.Dock="Left" Command="{Binding ToggleSettingsPanelCommand}" Padding="8,4" Margin="0,0,10,0" VerticalAlignment="Top"
+                            ToolTip="Hide the settings to give the image more room (Ctrl+Shift+S). F11 hides both side panels.">
+                        <TextBlock Text="&#xE76C;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" />
+                    </Button>
+                    <TextBlock Text="{Binding Selected.Name, FallbackValue=Settings}" FontSize="21" FontWeight="SemiBold" TextWrapping="Wrap" />
+                </DockPanel>
+                <TextBlock Text="{Binding Selected.Description}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                <TextBlock Text="{Binding Selected.Tips}" Style="{StaticResource Hint}" Margin="0,4,0,0" />
+
+                <TextBlock Text="Generation" Style="{StaticResource SectionHeader}" />
+                <TextBlock Text="{Binding SettingsSource}" Style="{StaticResource Hint}" Margin="0,0,0,6" />
+                <Grid DataContext="{Binding CurrentSettings}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition />
+                        <RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.Resources>
+                        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                            <Setter Property="Margin" Value="0,2" />
+                        </Style>
+                        <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+                            <Setter Property="Margin" Value="0,2" />
+                        </Style>
+                    </Grid.Resources>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="Width" Style="{StaticResource FieldLabelTight}" />
+                        <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[Width]}" />
+                    </StackPanel>
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Width}" />
+                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                        <TextBlock Text="Height" Style="{StaticResource FieldLabelTight}" />
+                        <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[Height]}" />
+                    </StackPanel>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Height}" />
+                    <StackPanel Grid.Row="2" Orientation="Horizontal">
+                        <TextBlock Text="Steps" Style="{StaticResource FieldLabelTight}" />
+                        <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[Steps]}" />
+                    </StackPanel>
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Steps}" />
+                    <StackPanel Grid.Row="3" Orientation="Horizontal">
+                        <TextBlock Text="CFG scale" Style="{StaticResource FieldLabelTight}" />
+                        <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[CfgScale]}" />
+                    </StackPanel>
+                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding CfgScale}" />
+                    <StackPanel Grid.Row="4" Orientation="Horizontal">
+                        <TextBlock Text="Guidance" Style="{StaticResource FieldLabelTight}" />
+                        <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[Guidance]}" />
+                    </StackPanel>
+                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Guidance, TargetNullValue=''}" ToolTip="Empty = model default" />
+                    <StackPanel Grid.Row="5" Orientation="Horizontal">
+                        <TextBlock Text="Flow shift" Style="{StaticResource FieldLabelTight}" />
+                        <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[FlowShift]}" />
+                    </StackPanel>
+                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding FlowShift, TargetNullValue=''}" ToolTip="Empty = model default" />
+                    <StackPanel Grid.Row="6" Orientation="Horizontal">
+                        <TextBlock Text="Sampler" Style="{StaticResource FieldLabelTight}" />
+                        <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[Sampler]}" />
+                    </StackPanel>
+                    <ComboBox Grid.Row="6" Grid.Column="1" ItemsSource="{Binding Samplers}" SelectedItem="{Binding Sampler}" />
+                    <StackPanel Grid.Row="7" Orientation="Horizontal">
+                        <TextBlock Text="Scheduler" Style="{StaticResource FieldLabelTight}" />
+                        <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[Scheduler]}" />
+                    </StackPanel>
+                    <ComboBox Grid.Row="7" Grid.Column="1" ItemsSource="{Binding Schedulers}" SelectedItem="{Binding Scheduler}" />
+                    <StackPanel Grid.Row="8" Orientation="Horizontal">
+                        <TextBlock Text="CLIP skip" Style="{StaticResource FieldLabelTight}" />
+                        <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[ClipSkip]}" />
+                    </StackPanel>
+                    <TextBox Grid.Row="8" Grid.Column="1" Text="{Binding ClipSkip}" ToolTip="-1 = model default" />
+                </Grid>
+
+                <TextBlock Text="Memory and speed" Style="{StaticResource SectionHeader}" />
+                <TextBlock Text="Changing these reloads the model on the next run." Style="{StaticResource Hint}" Margin="0,0,0,4" />
+                <StackPanel DataContext="{Binding CurrentSettings}">
+                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                        <CheckBox Content="Offload weights to RAM (stream to GPU)" IsChecked="{Binding OffloadToCpu}" />
+                        <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[OffloadToCpu]}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                        <CheckBox Content="Text encoder on CPU" IsChecked="{Binding TextEncoderOnCpu}" />
+                        <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[TextEncoderOnCpu]}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                        <CheckBox Content="VAE on CPU" IsChecked="{Binding VaeOnCpu}" />
+                        <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[VaeOnCpu]}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,2">
+                        <CheckBox Content="VAE tiling (saves VRAM at decode)" IsChecked="{Binding VaeTiling}" />
+                        <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[VaeTiling]}" />
+                    </StackPanel>
+                    <Grid Margin="0,4,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
+                            <TextBlock Text="Flash attention" Style="{StaticResource FieldLabelTight}" />
+                            <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[FlashAttention]}" />
+                        </StackPanel>
+                        <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding FlashAttentionModes}" SelectedItem="{Binding FlashAttention}" Margin="0,2" />
+                        <StackPanel Grid.Row="1" Orientation="Horizontal">
+                            <TextBlock Text="Quantize on load" Style="{StaticResource FieldLabelTight}" />
+                            <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[WeightType]}" />
+                        </StackPanel>
+                        <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding WeightTypes}" SelectedItem="{Binding WeightType}" Margin="0,2"
+                                  ToolTip="Empty = keep the file's own precision" />
+                        <StackPanel Grid.Row="2" Orientation="Horizontal">
+                            <TextBlock Text="Max VRAM (GiB)" Style="{StaticResource FieldLabelTight}" />
+                            <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[MaxVram]}" />
+                        </StackPanel>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding MaxVram}" Margin="0,2" ToolTip="Empty = automatic. -1 reserves about 1 GiB for other apps." />
+                        <StackPanel Grid.Row="3" Orientation="Horizontal">
+                            <TextBlock Text="Model args" Style="{StaticResource FieldLabelTight}" />
+                            <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding Help[ModelArgs]}" />
+                        </StackPanel>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding ModelArgs}" Margin="0,2" />
+                    </Grid>
+                </StackPanel>
+                <WrapPanel Margin="0,10,0,0">
+                    <Button Content="Save as my defaults" Command="{Binding SaveDefaultsCommand}" Padding="10,4" Margin="0,0,6,6" />
+                    <Button Content="Reset to recommended" Command="{Binding ResetDefaultsCommand}" Padding="10,4" Margin="0,0,6,6" />
+                </WrapPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,2">
+                    <CheckBox Content="Live preview while sampling" IsChecked="{Binding LivePreview}" />
+                    <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding CurrentSettings.Help[LivePreview]}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                    <TextBlock Text="{Binding LoadedText}" Style="{StaticResource Hint}" VerticalAlignment="Center" MaxWidth="280" />
+                    <Button Content="Unload" Command="{Binding UnloadCommand}" Padding="8,2" Margin="8,0,0,0"
+                            ToolTip="Frees the GPU memory the model uses. The next Generate loads it again." />
+                </StackPanel>
+
+                <TextBlock Text="Safety" Style="{StaticResource SectionHeader}" />
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox Content="NSFW image classifier" IsChecked="{Binding NsfwFilterEnabled}" FontWeight="SemiBold" />
+                    <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding CurrentSettings.Help[NsfwFilter]}" />
+                </StackPanel>
+                <TextBlock Style="{StaticResource Hint}" Margin="0,2,0,4"
+                           Text="Off by default. When on, each image is checked on the CPU; flagged images are blurred and saved to a 'flagged' subfolder, and live preview is paused. Downloads a 90 MB model the first time." />
+                <DockPanel IsEnabled="{Binding NsfwFilterEnabled}">
+                    <TextBlock Text="Threshold" Style="{StaticResource FieldLabelTight}" />
+                    <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding CurrentSettings.Help[NsfwThreshold]}" />
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding NsfwThreshold, StringFormat=0.00}" Width="42" TextAlignment="Right" VerticalAlignment="Center" />
+                    <Slider Minimum="0.3" Maximum="0.95" Value="{Binding NsfwThreshold}" TickFrequency="0.05" IsSnapToTickEnabled="True" />
+                </DockPanel>
+
+                <TextBlock Text="This PC" Style="{StaticResource SectionHeader}" />
+                <TextBlock Text="{Binding MachineSummary}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding MachineDetail}" Style="{StaticResource Hint}" Margin="0,2,0,6" />
+                <WrapPanel>
+                    <Button Content="Detect this PC" Command="{Binding DetectMachineCommand}" Padding="10,4" Margin="0,0,6,6"
+                            ToolTip="Re-detect GPU/VRAM/RAM and switch every model to the recommended settings for it" />
+                    <Button Content="Reload config" Command="{Binding ReloadConfigCommand}" Padding="10,4" Margin="0,0,6,6"
+                            ToolTip="Re-read machine.json, settings.json and models.json after editing them" />
+                    <Button Content="Edit model catalog" Command="{Binding EditCatalogCommand}" Padding="10,4" Margin="0,0,6,6" />
+                    <Button Content="Config folder" Command="{Binding OpenConfigFolderCommand}" Padding="10,4" Margin="0,0,6,6" />
+                </WrapPanel>
+
+                <TextBlock Text="Storage" Style="{StaticResource SectionHeader}" />
+                <TextBlock Text="Models folder" Style="{StaticResource Hint}" />
+                <TextBlock Text="{Binding ModelsDir}" TextWrapping="Wrap" FontSize="14" />
+                <WrapPanel Margin="0,4,0,6">
+                    <Button Content="Change…" Command="{Binding ChangeModelsFolderCommand}" Padding="10,3" Margin="0,0,6,0" />
+                    <Button Content="Open" Command="{Binding OpenModelsFolderCommand}" Padding="10,3" />
+                </WrapPanel>
+                <TextBlock Text="Output folder (generated images)" Style="{StaticResource Hint}" />
+                <TextBlock Text="{Binding OutputDir}" TextWrapping="Wrap" FontSize="14" />
+                <WrapPanel Margin="0,4,0,6">
+                    <Button Content="Change…" Command="{Binding ChangeOutputFolderCommand}" Padding="10,3" Margin="0,0,6,0" />
+                    <Button Content="Open" Command="{Binding OpenOutputFolderCommand}" Padding="10,3" Margin="0,0,6,0" />
+                    <Button Content="Clear folder…" Command="{Binding ClearOutputFolderCommand}" Padding="10,3" Margin="0,0,6,0"
+                            ToolTip="Permanently deletes every image (and .json file) ImageMango saved in this folder, after asking. Other files in the folder are left alone." />
+                    <Button Content="Use default" Command="{Binding ResetOutputFolderCommand}" Padding="10,3" Margin="0,4,0,0"
+                            ToolTip="Save to the Windows temp folder (%TEMP%\ImageMango). Windows may clean it up, so copy images you want to keep." />
+                </WrapPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,2,0,8">
+                    <CheckBox Content="Save the prompt and model inside images" IsChecked="{Binding EmbedMetadata}" />
+                    <TextBlock Style="{StaticResource InfoIcon}" ToolTip="{Binding CurrentSettings.Help[EmbedMetadata]}" />
+                </StackPanel>
+                <TextBlock Text="Hugging Face token (optional, for gated models)" Style="{StaticResource Hint}" />
+                <TextBox Text="{Binding HfToken, UpdateSourceTrigger=LostFocus}" Margin="0,2,0,0" />
+                <TextBlock Text="Civitai API key (optional, for LoRAs that need a login)" Style="{StaticResource Hint}" Margin="0,8,0,0" />
+                <TextBox Text="{Binding CivitaiToken, UpdateSourceTrigger=LostFocus}" Margin="0,2,0,0"
+                         ToolTip="Many Civitai LoRAs can only be downloaded by a logged-in user. Create a free key at civitai.com › Account settings › API Keys and paste it here. It's sent only to civitai.com, only when downloading." />
+
+                <TextBlock Text="{Binding EngineInfo}" Style="{StaticResource Hint}" Margin="0,16,0,0" />
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ============================================================ Gallery + log -->
+        <Grid Grid.Row="1" Grid.ColumnSpan="5" Margin="12,0,12,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Expander Header="Recent images" IsExpanded="True">
+                <ListBox ItemsSource="{Binding Gallery}" Height="128" ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                         ScrollViewer.HorizontalScrollBarVisibility="Auto" VirtualizingPanel.IsVirtualizing="True"
+                         SelectionChanged="Gallery_SelectionChanged">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type ui:GalleryItem}">
+                            <Image Source="{Binding Thumb}" Height="96" Stretch="Uniform" ToolTip="{Binding Path}">
+                                <Image.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Reuse its prompt and settings" Click="GalleryReuse_Click" />
+                                        <MenuItem Header="Use as start image" Click="GalleryUseAsStart_Click" />
+                                        <MenuItem Header="Open" Click="GalleryOpen_Click" />
+                                    </ContextMenu>
+                                </Image.ContextMenu>
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Flagged}" Value="True">
+                                                <Setter Property="Effect">
+                                                    <Setter.Value>
+                                                        <BlurEffect Radius="18" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Expander>
+            <Expander Grid.Column="1" Header="Engine log" ExpandDirection="Down" Margin="12,0,0,0" Width="540" VerticalAlignment="Top">
+                <ListBox ItemsSource="{Binding LogLines}" Height="128" FontFamily="Consolas" FontSize="12.5"
+                         ScrollViewer.HorizontalScrollBarVisibility="Auto" x:Name="LogList" />
+            </Expander>
+        </Grid>
+
+        <Border Grid.Row="2" Grid.ColumnSpan="5" Padding="12,5" BorderThickness="0,1,0,0" BorderBrush="#30808080">
+            <TextBlock Text="{Binding Status}" TextTrimming="CharacterEllipsis" />
+        </Border>
+    </Grid>
+</Window>

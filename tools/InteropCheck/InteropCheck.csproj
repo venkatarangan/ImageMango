@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Console check for the native bindings: compares struct layouts with the C header and
+       runs one real generation. Works on Windows and Linux (same x64 struct layout). -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\src\ImageMango\Native\*.cs" Link="Native\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\ImageMango\Core\NsfwClassifier.cs" Link="Core\NsfwClassifier.cs" />
+    <Compile Include="..\..\src\ImageMango\Core\Catalog.cs" Link="Core\Catalog.cs" />
+    <Compile Include="..\..\src\ImageMango\Core\GenSettings.cs" Link="Core\GenSettings.cs" />
+    <Compile Include="..\..\src\ImageMango\Core\Json.cs" Link="Core\Json.cs" />
+    <Compile Include="..\..\src\ImageMango\Core\AppPaths.cs" Link="Core\AppPaths.cs" />
+    <Compile Include="..\..\src\ImageMango\Core\Lora.cs" Link="Core\Lora.cs" />
+    <Compile Include="..\..\src\ImageMango\Core\UserSettings.cs" Link="Core\UserSettings.cs" />
+    <Compile Include="..\..\src\ImageMango\Core\Downloader.cs" Link="Core\Downloader.cs" />
+    <Compile Include="..\..\src\ImageMango\Core\PngMetadata.cs" Link="Core\PngMetadata.cs" />
+    <Compile Include="..\..\src\ImageMango\Core\LocalLlm.cs" Link="Core\LocalLlm.cs" />
+    <Compile Include="..\..\src\ImageMango\Core\PromptHelper.cs" Link="Core\PromptHelper.cs" />
+    <Compile Include="..\..\src\ImageMango\Core\LoraSearch.cs" Link="Core\LoraSearch.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.29.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\engine\*.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+
+</Project>

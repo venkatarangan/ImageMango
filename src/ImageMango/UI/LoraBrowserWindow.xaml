@@ -1,0 +1,116 @@
+<Window x:Class="ImageMango.UI.LoraBrowserWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="clr-namespace:ImageMango.UI"
+        Title="Find LoRAs" Width="980" Height="860" MinWidth="700" MinHeight="560"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" FontSize="15" Icon="/Assets/app.ico">
+    <!-- The margin sits on an inner panel so self-test pictures of the root line up. -->
+    <Grid>
+    <DockPanel Margin="16,12,16,14">
+        <StackPanel DockPanel.Dock="Top">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Left" Text="&#xE790;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="22" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <TextBlock x:Name="Header" Text="Find LoRAs" FontSize="20" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+            </DockPanel>
+            <TextBlock x:Name="SubHeader" Style="{StaticResource Hint}" Margin="0,4,0,0" />
+            <DockPanel Margin="0,8,0,0">
+                <TextBlock Text="Civitai API key" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <Button DockPanel.Dock="Right" Content="Get a free key" Click="GetKey_Click" Padding="10,3" Margin="8,0,0,0"
+                        ToolTip="Opens civitai.com › Account settings, where API Keys has 'Add API key' (needs a free Civitai account)" />
+                <TextBlock DockPanel.Dock="Right" Style="{StaticResource Hint}" VerticalAlignment="Center" Margin="10,0,0,0" TextWrapping="NoWrap"
+                           Text="Optional. Many Civitai LoRAs download only with it." />
+                <TextBox x:Name="CivitaiKeyBox" VerticalContentAlignment="Center" LostFocus="CivitaiKey_LostFocus"
+                         ToolTip="Saved in settings.json and sent only to civitai.com, only when downloading." />
+            </DockPanel>
+            <DockPanel Margin="0,10,0,0">
+                <Button x:Name="SearchButton" DockPanel.Dock="Right" Click="Search_Click" Padding="16,5" Margin="8,0,0,0" IsDefault="True">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE721;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,6,0" />
+                        <TextBlock Text="Search" />
+                    </StackPanel>
+                </Button>
+                <ComboBox x:Name="SortBox" DockPanel.Dock="Right" Width="170" Margin="8,0,0,0" SelectedIndex="0">
+                    <ComboBoxItem Content="Most downloaded" />
+                    <ComboBoxItem Content="Highest rated" />
+                    <ComboBoxItem Content="Newest" />
+                </ComboBox>
+                <ComboBox x:Name="SourceBox" DockPanel.Dock="Right" Width="200" Margin="8,0,0,0" SelectedIndex="0">
+                    <ComboBoxItem Content="Civitai and Hugging Face" />
+                    <ComboBoxItem Content="Civitai" />
+                    <ComboBoxItem Content="Hugging Face" />
+                </ComboBox>
+                <TextBox x:Name="QueryBox" VerticalContentAlignment="Center" ToolTip="Words to look for, such as watercolor, pixel art, ghibli, detail. Empty shows the most popular." />
+            </DockPanel>
+        </StackPanel>
+
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,10,0,0">
+            <Button DockPanel.Dock="Right" Content="Close" Click="Close_Click" Padding="14,5" Margin="8,0,0,0" />
+            <Button x:Name="DownloadButton" DockPanel.Dock="Right" Click="Download_Click" Padding="14,5" Style="{DynamicResource AccentButtonStyle}" IsEnabled="False"
+                    ToolTip="Downloads the ticked LoRAs one after another into the LoRA folder and switches them on for the selected model">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE896;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBlock x:Name="DownloadLabel" Text="Download ticked" />
+                </StackPanel>
+            </Button>
+            <Button x:Name="StopButton" DockPanel.Dock="Right" Content="Stop" Click="Stop_Click" Padding="12,5" Margin="0,0,8,0" Visibility="Collapsed" />
+            <Button x:Name="MoreButton" DockPanel.Dock="Left" Content="More results" Click="More_Click" Padding="12,5" Margin="0,0,10,0" Visibility="Collapsed"
+                    ToolTip="Load the next page of Civitai results" />
+            <ProgressBar x:Name="Busy" DockPanel.Dock="Left" Width="60" Height="4" IsIndeterminate="True" Margin="0,0,10,0" Visibility="Hidden" VerticalAlignment="Center" />
+            <TextBlock x:Name="StatusText" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Style="{StaticResource Hint}" />
+        </DockPanel>
+
+        <Border BorderThickness="1" BorderBrush="#40808080" CornerRadius="6" Margin="0,10,0,0">
+            <ListBox x:Name="Results" BorderThickness="0" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.ScrollUnit="Pixel" SelectionMode="Single">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type ui:LoraResultItem}">
+                        <DockPanel Margin="2,6">
+                            <CheckBox DockPanel.Dock="Left" IsChecked="{Binding IsChecked}" IsEnabled="{Binding CanTick}" VerticalAlignment="Center" Margin="0,0,10,0"
+                                      Checked="Tick_Changed" Unchecked="Tick_Changed" ToolTip="Tick to download" />
+                            <Border DockPanel.Dock="Left" Width="112" Height="112" CornerRadius="4" ClipToBounds="True" Background="#18808080" Margin="0,0,12,0">
+                                <Grid>
+                                    <TextBlock Text="&#xEB9F;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="28" Opacity="0.3"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <Image Source="{Binding Thumb}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality">
+                                        <Image.Style>
+                                            <Style TargetType="Image">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding BlurThumb}" Value="True">
+                                                        <Setter Property="Effect">
+                                                            <Setter.Value>
+                                                                <BlurEffect Radius="24" />
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Image.Style>
+                                    </Image>
+                                </Grid>
+                            </Border>
+                            <Button DockPanel.Dock="Right" Padding="8,3" VerticalAlignment="Top" Margin="8,0,0,0" Click="OpenPage_Click"
+                                    ToolTip="{Binding Result.PageUrl}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE8A7;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="12" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                    <TextBlock Text="Page" FontSize="13" />
+                                </StackPanel>
+                            </Button>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="16" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding Details}" Style="{StaticResource Hint}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Margin="0,2,0,0" />
+                                <TextBlock Text="{Binding TriggerText}" FontSize="13.5" TextWrapping="Wrap" MaxHeight="40" TextTrimming="CharacterEllipsis" Margin="0,3,0,0"
+                                           Visibility="{Binding HasTrigger, Converter={StaticResource BoolToVis}}" />
+                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0" Visibility="{Binding HasStatus, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock Text="{Binding Status}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap" MaxWidth="560" />
+                                    <ProgressBar Width="140" Height="4" Maximum="100" Value="{Binding Progress, Mode=OneWay}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                                 Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVis}}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+    </DockPanel>
+    </Grid>
+</Window>

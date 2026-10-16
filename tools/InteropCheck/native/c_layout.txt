@@ -1,0 +1,88 @@
+sd_image_t size 24
+sd_image_t.data 16
+sd_lora_t size 16
+sd_lora_t.multiplier 4
+sd_lora_t.path 8
+sd_tiling_params_t size 32
+sd_tiling_params_t.tile_size_w 4
+sd_tiling_params_t.target_overlap 12
+sd_tiling_params_t.extra_tiling_args 24
+sd_ctx_params_t size 336
+sd_ctx_params_t.clip_l_path 8
+sd_ctx_params_t.t5xxl_path 32
+sd_ctx_params_t.llm_path 40
+sd_ctx_params_t.diffusion_model_path 56
+sd_ctx_params_t.vae_path 88
+sd_ctx_params_t.taesd_path 112
+sd_ctx_params_t.embeddings 144
+sd_ctx_params_t.embedding_count 152
+sd_ctx_params_t.photo_maker_path 160
+sd_ctx_params_t.n_threads 184
+sd_ctx_params_t.wtype 188
+sd_ctx_params_t.lora_apply_mode 204
+sd_ctx_params_t.enable_mmap 208
+sd_ctx_params_t.flash_attn 209
+sd_ctx_params_t.force_sdxl_vae_conv_scale 214
+sd_ctx_params_t.vae_format 216
+sd_ctx_params_t.max_vram 224
+sd_ctx_params_t.disable_prefetch 232
+sd_ctx_params_t.eager_load 233
+sd_ctx_params_t.backend 240
+sd_ctx_params_t.split_mode 256
+sd_ctx_params_t.auto_fit 264
+sd_ctx_params_t.rpc_servers 272
+sd_ctx_params_t.model_args 280
+sd_ctx_params_t.disable_segmented_compute 288
+sd_ctx_params_t.batched_cfg 289
+sd_ctx_params_t.linear_scale 292
+sd_ctx_params_t.attn_scale 296
+sd_ctx_params_t.tokenizer 304
+sd_ctx_params_t.sage_attn 312
+sd_ctx_params_t.conditioning_cache_size 316
+sd_ctx_params_t.flash_attn_mode 320
+sd_ctx_params_t.conv_direct_mode 328
+sd_slg_params_t size 32
+sd_guidance_params_t size 48
+sd_guidance_params_t.slg 16
+sd_sample_params_t size 96
+sd_sample_params_t.scheduler 48
+sd_sample_params_t.sample_steps 56
+sd_sample_params_t.custom_sigmas 72
+sd_sample_params_t.flow_shift 84
+sd_sample_params_t.extra_sample_args 88
+sd_pm_params_t size 32
+sd_pulid_params_t size 16
+sd_cache_params_t size 96
+sd_cache_params_t.use_relative_threshold 20
+sd_cache_params_t.Fn_compute_blocks 24
+sd_cache_params_t.scm_mask 56
+sd_cache_params_t.scm_policy_dynamic 64
+sd_cache_params_t.spectrum_w 68
+sd_cache_params_t.spectrum_stop_percent 92
+sd_hires_params_t size 56
+sd_hires_params_t.model_path 8
+sd_hires_params_t.custom_sigmas 40
+sd_img_gen_params_t size 552
+sd_img_gen_params_t.lora_count 8
+sd_img_gen_params_t.prompt 16
+sd_img_gen_params_t.clip_skip 32
+sd_img_gen_params_t.init_image 40
+sd_img_gen_params_t.ref_images 64
+sd_img_gen_params_t.ref_image_args 80
+sd_img_gen_params_t.mask_image 88
+sd_img_gen_params_t.width 112
+sd_img_gen_params_t.sample_params 120
+sd_img_gen_params_t.strength 216
+sd_img_gen_params_t.seed 224
+sd_img_gen_params_t.batch_count 232
+sd_img_gen_params_t.control_image 240
+sd_img_gen_params_t.control_strength 264
+sd_img_gen_params_t.ip_adapter_image 272
+sd_img_gen_params_t.pm_params 304
+sd_img_gen_params_t.pulid_params 336
+sd_img_gen_params_t.vae_tiling_params 352
+sd_img_gen_params_t.cache 384
+sd_img_gen_params_t.hires 480
+sd_img_gen_params_t.qwen_image_layers 536
+sd_img_gen_params_t.circular_x 540
+sd_img_gen_params_t.image_preprocess 544

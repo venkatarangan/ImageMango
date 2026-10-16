@@ -1,0 +1,7 @@
+bin/
+obj/
+publish/
+engine/
+.engine-cache/
+.vs/
+*.user

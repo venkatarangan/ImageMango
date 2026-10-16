@@ -1,0 +1,375 @@
+{
+  "catalogVersion": "2026.10.16",
+  "engineRelease": "master-964-1d0a58a",
+  "notes": "Model catalog for ImageMango. Edit freely; a copy placed in %LOCALAPPDATA%\\ImageMango\\config\\models.json overrides this one. 'tiers' pick files and settings by GPU VRAM: the tier with the largest minVramGb not above this machine's VRAM wins, and its settings are layered over 'defaults'. 'family' is the model type LoRAs must be made for (see LoraFamilies in Core/Lora.cs); loraCivitai / loraHuggingFace optionally pick which LoRA listings 'Find LoRAs' opens. Categories: filtered = publisher states training data was filtered / safety-tuned; unfiltered = no stated filtering, will follow explicit prompts; nfaa = Hugging Face repo is tagged not-for-all-audiences.",
+  "models": [
+    {
+      "id": "z-image-turbo",
+      "name": "Z-Image Turbo",
+      "publisher": "Tongyi-MAI (Alibaba)",
+      "released": "2025-11",
+      "category": "unfiltered",
+      "license": "Apache-2.0",
+      "family": "z-image",
+      "pageUrl": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo",
+      "description": "6B distilled model; photoreal, strong prompt following and English/Chinese text. 8 steps, very fast. Best all-round pick for a 12 GB GPU.",
+      "tips": "Write natural sentences. CFG stays at 1 (no negative prompt).",
+      "promptGuide": "One paragraph of plain, concrete English sentences, 40 to 90 words: the kind of image (photo, illustration, poster), the subject and what it is doing, the setting, the light, the camera or art style, the mood. Photoreal unless the user asks for a style. Words that must appear in the image go in double quotes. No tag lists and no quality words like 'masterpiece' or '8k'.",
+      "files": {
+        "dit-q8": {"role": "diffusion", "repo": "leejet/Z-Image-Turbo-GGUF", "path": "z_image_turbo-Q8_0.gguf", "sizeGb": 6.58},
+        "dit-q6": {"role": "diffusion", "repo": "leejet/Z-Image-Turbo-GGUF", "path": "z_image_turbo-Q6_K.gguf", "sizeGb": 5.26},
+        "dit-q4": {"role": "diffusion", "repo": "leejet/Z-Image-Turbo-GGUF", "path": "z_image_turbo-Q4_K.gguf", "sizeGb": 3.86},
+        "dit-q3": {"role": "diffusion", "repo": "leejet/Z-Image-Turbo-GGUF", "path": "z_image_turbo-Q3_K.gguf", "sizeGb": 3.14},
+        "llm-q8": {"role": "llm", "repo": "unsloth/Qwen3-4B-Instruct-2507-GGUF", "path": "Qwen3-4B-Instruct-2507-Q8_0.gguf", "sizeGb": 4.28},
+        "llm-q4": {"role": "llm", "repo": "unsloth/Qwen3-4B-Instruct-2507-GGUF", "path": "Qwen3-4B-Instruct-2507-Q4_K_M.gguf", "sizeGb": 2.5},
+        "vae": {"role": "vae", "repo": "Comfy-Org/z_image_turbo", "path": "split_files/vae/ae.safetensors", "sizeGb": 0.34}
+      },
+      "defaults": {"width": 1024, "height": 1024, "steps": 8, "cfgScale": 1.0, "sampler": "default", "scheduler": "default"},
+      "tiers": [
+        {"minVramGb": 0, "files": ["dit-q3", "llm-q4", "vae"], "settings": {"width": 768, "height": 768, "offloadToCpu": true, "vaeTiling": true}},
+        {"minVramGb": 8, "files": ["dit-q4", "llm-q4", "vae"], "settings": {"offloadToCpu": true}},
+        {"minVramGb": 12, "files": ["dit-q8", "llm-q8", "vae"], "settings": {"offloadToCpu": true}},
+        {"minVramGb": 16, "files": ["dit-q8", "llm-q8", "vae"], "settings": {"offloadToCpu": false}}
+      ],
+      "samplePrompts": [
+        "A candid street photo of an elderly tea seller in Chengdu at dawn, steam rising from a copper kettle, soft golden backlight, 35mm film look",
+        "A neon sign above a narrow Hong Kong alley that reads '夜市 NIGHT MARKET' in glowing red and blue tubes, wet pavement reflections, light rain",
+        "Studio product photo of a matte black earbud case on white marble, single hard light from the left, crisp shadow, minimalist",
+        "A chalkboard menu outside a Paris café listing 'Croissant 2€, Café crème 3€, Tarte du jour 5€', morning sunlight, red geraniums",
+        "Portrait of a young Indian woman in a mustard-yellow saree laughing on a Mumbai rooftop at golden hour, natural skin texture, 85mm bokeh"
+      ]
+    },
+    {
+      "id": "flux2-klein-4b",
+      "name": "FLUX.2 [klein] 4B",
+      "publisher": "Black Forest Labs",
+      "released": "2026-01",
+      "category": "filtered",
+      "license": "Apache-2.0",
+      "family": "flux2-klein-4b",
+      "pageUrl": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B",
+      "description": "Small 4-step distilled FLUX.2. Fastest model in this list with good quality; commercial use allowed.",
+      "tips": "4 steps, CFG 1. Natural-language prompts.",
+      "promptGuide": "Natural English sentences, 30 to 70 words. Subject first, then what it is doing, the setting, the style or medium (photo, gouache illustration, 3D render), the light and the framing. Be specific about colours and materials. Words that must appear in the image go in double quotes. No tag lists and no filler like 'masterpiece' or '8k'.",
+      "files": {
+        "dit-q8": {"role": "diffusion", "repo": "leejet/FLUX.2-klein-4B-GGUF", "path": "flux-2-klein-4b-Q8_0.gguf", "sizeGb": 4.3},
+        "dit-q4": {"role": "diffusion", "repo": "leejet/FLUX.2-klein-4B-GGUF", "path": "flux-2-klein-4b-Q4_0.gguf", "sizeGb": 2.46},
+        "llm-q8": {"role": "llm", "repo": "unsloth/Qwen3-4B-GGUF", "path": "Qwen3-4B-Q8_0.gguf", "sizeGb": 4.28},
+        "llm-q4": {"role": "llm", "repo": "unsloth/Qwen3-4B-GGUF", "path": "Qwen3-4B-Q4_K_M.gguf", "sizeGb": 2.5},
+        "vae": {"role": "vae", "repo": "Comfy-Org/flux2-dev", "path": "split_files/vae/flux2-vae.safetensors", "sizeGb": 0.34}
+      },
+      "defaults": {"width": 1024, "height": 1024, "steps": 4, "cfgScale": 1.0, "sampler": "euler", "scheduler": "default"},
+      "tiers": [
+        {"minVramGb": 0, "files": ["dit-q4", "llm-q4", "vae"], "settings": {"width": 768, "height": 768, "offloadToCpu": true, "vaeTiling": true}},
+        {"minVramGb": 8, "files": ["dit-q8", "llm-q4", "vae"], "settings": {"offloadToCpu": true}},
+        {"minVramGb": 12, "files": ["dit-q8", "llm-q8", "vae"], "settings": {"offloadToCpu": false}}
+      ],
+      "samplePrompts": [
+        "A cozy reading nook with a window seat, rain on the glass, a cat curled on a knitted blanket, warm lamp light, soft gouache illustration",
+        "Isometric 3D render of a tiny floating island with a lighthouse and waterfalls spilling off the edges, pastel colors",
+        "A 1950s screen-print travel poster for 'LISBON' with yellow trams climbing a hill, bold flat shapes",
+        "Macro photo of a dew-covered spider web at sunrise, backlit droplets sparkling, green bokeh",
+        "A friendly robot barista pouring latte art in a sunlit café, Pixar-style 3D animation"
+      ]
+    },
+    {
+      "id": "flux2-klein-9b",
+      "name": "FLUX.2 [klein] 9B",
+      "publisher": "Black Forest Labs",
+      "released": "2026-01",
+      "category": "filtered",
+      "license": "FLUX Non-Commercial",
+      "family": "flux2-klein-9b",
+      "pageUrl": "https://huggingface.co/black-forest-labs/FLUX.2-klein-9B",
+      "description": "Larger 4-step FLUX.2 with noticeably better detail and text than 4B. Non-commercial licence.",
+      "tips": "4 steps, CFG 1.",
+      "promptGuide": "Natural English sentences, 30 to 80 words. Subject first, then what it is doing, the setting, the style or medium, the light and the framing. It renders text well: put the exact words in double quotes and say where they go and how they look. Be specific about colours and materials. No tag lists and no filler like 'masterpiece' or '8k'.",
+      "files": {
+        "dit-q8": {"role": "diffusion", "repo": "leejet/FLUX.2-klein-9B-GGUF", "path": "flux-2-klein-9b-Q8_0.gguf", "sizeGb": 9.98},
+        "dit-q4": {"role": "diffusion", "repo": "leejet/FLUX.2-klein-9B-GGUF", "path": "flux-2-klein-9b-Q4_0.gguf", "sizeGb": 5.62},
+        "llm-q8": {"role": "llm", "repo": "unsloth/Qwen3-8B-GGUF", "path": "Qwen3-8B-Q8_0.gguf", "sizeGb": 8.71},
+        "llm-q4": {"role": "llm", "repo": "unsloth/Qwen3-8B-GGUF", "path": "Qwen3-8B-Q4_K_M.gguf", "sizeGb": 5.03},
+        "vae": {"role": "vae", "repo": "Comfy-Org/flux2-dev", "path": "split_files/vae/flux2-vae.safetensors", "sizeGb": 0.34}
+      },
+      "defaults": {"width": 1024, "height": 1024, "steps": 4, "cfgScale": 1.0, "sampler": "euler", "scheduler": "default", "offloadToCpu": true},
+      "tiers": [
+        {"minVramGb": 0, "files": ["dit-q4", "llm-q4", "vae"], "settings": {"width": 768, "height": 768, "vaeTiling": true}},
+        {"minVramGb": 8, "files": ["dit-q4", "llm-q4", "vae"]},
+        {"minVramGb": 12, "files": ["dit-q8", "llm-q4", "vae"]},
+        {"minVramGb": 16, "files": ["dit-q8", "llm-q8", "vae"]},
+        {"minVramGb": 24, "files": ["dit-q8", "llm-q8", "vae"], "settings": {"offloadToCpu": false}}
+      ],
+      "samplePrompts": [
+        "A botanical illustration of a monstera plant with neat handwritten labels 'Leaf', 'Aerial root', 'Node' on aged paper",
+        "Cinematic wide shot of a desert caravan at dusk under a giant ringed planet, long shadows, volumetric dust, anamorphic flare",
+        "Close-up portrait of an old fisherman with weathered skin and a knitted cap, overcast Nordic light, every wrinkle sharp",
+        "Coffee bag packaging mockup with the brand 'NORTHBEAN' and 'Single Origin · Ethiopia' in clean sans-serif, kraft paper, studio light",
+        "An open steampunk pocket watch revealing tiny gears and a miniature city inside, brass and glass, macro photography"
+      ]
+    },
+    {
+      "id": "qwen-image-2.1",
+      "name": "Qwen-Image 2.1",
+      "publisher": "Qwen (Alibaba)",
+      "released": "2026-09",
+      "category": "filtered",
+      "license": "Qwen Research License (non-commercial)",
+      "family": "qwen-image-2.1",
+      "pageUrl": "https://huggingface.co/Qwen/Qwen-Image-2.1",
+      "description": "7B successor to the 20B Qwen-Image: best text rendering and layout in this list, bilingual (English/Chinese) text and native 2K output. Much lighter than Qwen-Image 2512, so it runs comfortably on 12 GB. Non-commercial licence.",
+      "promptGuide": "Long, descriptive English prose, 60 to 140 words, like an art director's brief: the kind of image (poster, photo, infographic, illustration), the layout and composition, the subject, the style, colours and light. It is the best model here for text: put every word that must appear in double quotes, and say where it goes, how big and in what lettering. Chinese text is fine inside quotes. No tag lists.",
+      "tips": "Write long, descriptive prose and put the exact text in quotes. CFG 1 is about twice as fast but ignores the negative prompt.",
+      "files": {
+        "dit-q8": {"role": "diffusion", "repo": "leejet/Qwen-Image-2.1-GGUF", "path": "qwen_image_2.1-Q8_0.gguf", "sizeGb": 7.69},
+        "dit-q6": {"role": "diffusion", "repo": "leejet/Qwen-Image-2.1-GGUF", "path": "qwen_image_2.1-Q6_K.gguf", "sizeGb": 6.0},
+        "dit-q4": {"role": "diffusion", "repo": "leejet/Qwen-Image-2.1-GGUF", "path": "qwen_image_2.1-Q4_K.gguf", "sizeGb": 4.2},
+        "dit-q3": {"role": "diffusion", "repo": "leejet/Qwen-Image-2.1-GGUF", "path": "qwen_image_2.1-Q3_K.gguf", "sizeGb": 3.27},
+        "llm-q8": {"role": "llm", "repo": "Qwen/Qwen3-VL-8B-Instruct-GGUF", "path": "Qwen3VL-8B-Instruct-Q8_0.gguf", "sizeGb": 8.71},
+        "llm-q4": {"role": "llm", "repo": "Qwen/Qwen3-VL-8B-Instruct-GGUF", "path": "Qwen3VL-8B-Instruct-Q4_K_M.gguf", "sizeGb": 5.03},
+        "vae": {"role": "vae", "repo": "Comfy-Org/Qwen-Image-2.1", "path": "vae/qwen_image_2.1_vae_bf16.safetensors", "sizeGb": 0.68}
+      },
+      "defaults": {"width": 1024, "height": 1024, "steps": 30, "cfgScale": 4.0, "sampler": "euler", "scheduler": "default", "offloadToCpu": true, "negativePrompt": "low quality, blurry, distorted text, watermark"},
+      "tiers": [
+        {"minVramGb": 0, "files": ["dit-q3", "llm-q4", "vae"], "settings": {"width": 768, "height": 768, "vaeTiling": true}},
+        {"minVramGb": 8, "files": ["dit-q4", "llm-q4", "vae"]},
+        {"minVramGb": 12, "files": ["dit-q8", "llm-q4", "vae"]},
+        {"minVramGb": 16, "files": ["dit-q8", "llm-q8", "vae"]},
+        {"minVramGb": 24, "files": ["dit-q8", "llm-q8", "vae"], "settings": {"width": 1536, "height": 1536, "offloadToCpu": false}}
+      ],
+      "samplePrompts": [
+        "A minimalist concert poster: large bold title \"MIDNIGHT ECHOES\", subtitle \"Live at The Blue Room - 21 November - 8 PM\", deep navy background with one glowing saxophone illustration, clean Swiss grid layout",
+        "An infographic titled \"How Coffee Is Made\" with five numbered steps \"Harvest\", \"Process\", \"Roast\", \"Grind\", \"Brew\", each with a flat icon and a one-line caption, warm brown palette",
+        "A carved and gilded wooden shop sign reading \"老街茶馆 Old Street Teahouse\", red lanterns, evening light, light rain",
+        "A hand-drawn chalkboard sign outside a bakery reading \"Fresh Bread Daily\" with a smaller line \"Sourdough · Baguette · Rye\", doodles of wheat and loaves, morning street light",
+        "A phone app onboarding screen with the heading \"Track your habits\", three toggle rows labeled \"Drink water\", \"Read 20 min\", \"Walk 8,000 steps\" and a blue \"Get started\" button"
+      ]
+    },
+    {
+      "id": "chroma1-hd",
+      "name": "Chroma1-HD",
+      "publisher": "lodestones",
+      "released": "2025-08",
+      "category": "unfiltered",
+      "license": "Apache-2.0",
+      "family": "chroma",
+      "pageUrl": "https://huggingface.co/lodestones/Chroma1-HD",
+      "description": "8.9B FLUX.1-schnell derivative retrained on a broad uncensored dataset. Wide style range; uses real CFG with negative prompts.",
+      "tips": "26 steps, CFG 4. Use the negative prompt.",
+      "promptGuide": "Natural English description, 40 to 90 words, that names the medium and style explicitly (oil painting, 35mm film photo, anime illustration, watercolour) and then describes the subject, the setting, the light and the composition. It knows many art styles and artists' techniques; say which one. Write the negative prompt as unwanted qualities (low quality, blurry, deformed hands).",
+      "files": {
+        "dit-q8": {"role": "diffusion", "repo": "silveroxides/Chroma1-HD-GGUF", "path": "Chroma1-HD-Q8_0.gguf", "sizeGb": 9.74},
+        "dit-q6": {"role": "diffusion", "repo": "silveroxides/Chroma1-HD-GGUF", "path": "Chroma1-HD-Q6_K.gguf", "sizeGb": 7.65},
+        "dit-q4": {"role": "diffusion", "repo": "silveroxides/Chroma1-HD-GGUF", "path": "Chroma1-HD-Q4_K_S.gguf", "sizeGb": 5.43},
+        "dit-q3": {"role": "diffusion", "repo": "silveroxides/Chroma1-HD-GGUF", "path": "Chroma1-HD-Q3_K_S.gguf", "sizeGb": 4.29},
+        "t5-q8": {"role": "t5xxl", "repo": "city96/t5-v1_1-xxl-encoder-gguf", "path": "t5-v1_1-xxl-encoder-Q8_0.gguf", "sizeGb": 5.06},
+        "t5-q4": {"role": "t5xxl", "repo": "city96/t5-v1_1-xxl-encoder-gguf", "path": "t5-v1_1-xxl-encoder-Q4_K_M.gguf", "sizeGb": 2.9},
+        "vae": {"role": "vae", "repo": "Comfy-Org/z_image_turbo", "path": "split_files/vae/ae.safetensors", "sizeGb": 0.34}
+      },
+      "defaults": {"width": 1024, "height": 1024, "steps": 26, "cfgScale": 4.0, "sampler": "euler", "scheduler": "default", "modelArgs": "chroma_use_dit_mask=false", "offloadToCpu": true, "negativePrompt": "low quality, ugly, unfinished, out of focus, deformed, disfigured, blurry, smudged, restricted palette, flat colors"},
+      "tiers": [
+        {"minVramGb": 0, "files": ["dit-q3", "t5-q4", "vae"], "settings": {"width": 768, "height": 768, "vaeTiling": true}},
+        {"minVramGb": 8, "files": ["dit-q4", "t5-q4", "vae"]},
+        {"minVramGb": 12, "files": ["dit-q6", "t5-q8", "vae"]},
+        {"minVramGb": 16, "files": ["dit-q8", "t5-q8", "vae"]},
+        {"minVramGb": 24, "files": ["dit-q8", "t5-q8", "vae"], "settings": {"offloadToCpu": false}}
+      ],
+      "samplePrompts": [
+        "Oil painting of a stormy sea with a small sailboat, thick impasto brushstrokes, dramatic chiaroscuro, Romantic-era maritime style",
+        "A 1990s anime screenshot of a girl riding a bicycle along a seaside road in summer, cel shading, film grain",
+        "Dark fantasy illustration of a knight kneeling before a giant glowing tree in a ruined cathedral, volumetric light, muted palette",
+        "Amateur flash photo of friends laughing at a crowded house party, slight motion blur, early-2000s digital camera look",
+        "Loose watercolor and ink sketch of a Kyoto street in autumn, splashes of red maple"
+      ]
+    },
+    {
+      "id": "realvisxl-v5",
+      "name": "RealVisXL V5.0",
+      "publisher": "SG161222",
+      "released": "2024-08",
+      "category": "unfiltered",
+      "license": "OpenRAIL++",
+      "family": "sdxl",
+      "loraCivitai": ["SDXL 1.0"],
+      "loraHuggingFace": ["stabilityai/stable-diffusion-xl-base-1.0"],
+      "pageUrl": "https://huggingface.co/SG161222/RealVisXL_V5.0",
+      "description": "Popular photoreal SDXL fine-tune. Fast on any GPU and compatible with thousands of SDXL LoRAs.",
+      "tips": "Tag-style or sentence prompts; use the negative prompt.",
+      "promptGuide": "A photographic description, 25 to 60 words, as short comma-separated phrases. Start with 'RAW photo,' then the shot type (close-up portrait, full body, wide shot), the subject with concrete details (age, hair, clothing, expression), what they do, the setting, the light (soft window light, golden hour), and camera details (85mm, f/1.8, film grain, detailed skin). Photoreal only; avoid art-style words unless asked. Negative prompt: illustration, painting, cartoon, 3d, low quality, blurry, deformed hands.",
+      "files": {
+        "model": {"role": "model", "repo": "SG161222/RealVisXL_V5.0", "path": "RealVisXL_V5.0_fp16.safetensors", "sizeGb": 6.94},
+        "vae": {"role": "vae", "repo": "madebyollin/sdxl-vae-fp16-fix", "path": "sdxl_vae.safetensors", "sizeGb": 0.33}
+      },
+      "defaults": {"width": 1024, "height": 1024, "steps": 30, "cfgScale": 5.0, "sampler": "dpm++2m", "scheduler": "karras", "negativePrompt": "(worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth"},
+      "tiers": [
+        {"minVramGb": 0, "files": ["model", "vae"], "settings": {"weightType": "q8_0", "offloadToCpu": true, "vaeTiling": true}},
+        {"minVramGb": 8, "files": ["model", "vae"]}
+      ],
+      "samplePrompts": [
+        "RAW photo, close-up portrait of a 40-year-old man with a salt-and-pepper beard in a denim jacket, soft window light, 85mm, film grain, detailed skin",
+        "photo of a modern Scandinavian living room, large windows, oak floor, linen sofa, morning sunlight, interior design magazine",
+        "cinematic photo of a woman in a red coat walking through Times Square at night, rain, neon reflections, bokeh",
+        "food photography, stack of fluffy pancakes with blueberries and maple syrup dripping, rustic wooden table, natural light",
+        "aerial drone photo of turquoise rice terraces in Bali at sunrise, mist in the valleys"
+      ]
+    },
+    {
+      "id": "illustrious-xl-v2",
+      "name": "Illustrious XL v2.0",
+      "publisher": "OnomaAI Research",
+      "released": "2025-04",
+      "category": "unfiltered",
+      "license": "CreativeML OpenRAIL-M",
+      "family": "sdxl",
+      "loraCivitai": ["Illustrious", "NoobAI"],
+      "loraHuggingFace": ["OnomaAIResearch/Illustrious-xl-early-release-v0", "OnomaAIResearch/Illustrious-XL-v2.0"],
+      "pageUrl": "https://huggingface.co/OnomaAIResearch/Illustrious-XL-v2.0",
+      "description": "Anime / illustration SDXL base trained on Danbooru tags; base of most current anime fine-tunes.",
+      "tips": "Danbooru tags work best, e.g. '1girl, solo, masterpiece, best quality, ...'.",
+      "promptGuide": "Comma-separated Danbooru tags in lowercase, no sentences. Order: 'masterpiece, best quality', the count tag (1girl, 1boy, 2girls, multiple girls, no humans), 'solo' if one person, a character and series name only if the user named one, then appearance (hair colour and length, eye colour, clothing), pose and action, expression, setting and background, light and weather, and framing (upper body, full body, from above, looking at viewer). Use real Danbooru tag names. Negative prompt: short quality tags (worst quality, low quality, lowres, bad anatomy, bad hands, watermark).",
+      "files": {
+        "model": {"role": "model", "repo": "OnomaAIResearch/Illustrious-XL-v2.0", "path": "Illustrious-XL-v2.0.safetensors", "sizeGb": 6.94},
+        "vae": {"role": "vae", "repo": "madebyollin/sdxl-vae-fp16-fix", "path": "sdxl_vae.safetensors", "sizeGb": 0.33}
+      },
+      "defaults": {"width": 1024, "height": 1024, "steps": 28, "cfgScale": 6.0, "sampler": "euler_a", "scheduler": "default", "negativePrompt": "worst quality, low quality, lowres, bad anatomy, bad hands, jpeg artifacts, signature, watermark"},
+      "tiers": [
+        {"minVramGb": 0, "files": ["model", "vae"], "settings": {"weightType": "q8_0", "offloadToCpu": true, "vaeTiling": true}},
+        {"minVramGb": 8, "files": ["model", "vae"]}
+      ],
+      "samplePrompts": [
+        "masterpiece, best quality, 1girl, solo, silver hair, long hair, red eyes, gothic victorian dress, holding umbrella, rain, night, city lights, looking at viewer",
+        "masterpiece, best quality, 1boy, samurai, katana, cherry blossoms, petals, wind, dynamic pose, full body, sunset",
+        "masterpiece, best quality, no humans, scenery, fantasy castle, floating island, clouds, waterfall, blue sky, wide shot",
+        "masterpiece, best quality, 2girls, office lady, coffee cup, cafe, window, afternoon, smile, conversation",
+        "masterpiece, best quality, 1girl, witch hat, black cat, riding broom, flying, full moon, starry sky, from below"
+      ]
+    },
+    {
+      "id": "noobai-xl-1.1",
+      "name": "NoobAI-XL 1.1",
+      "publisher": "Laxhar Lab",
+      "released": "2024-11",
+      "category": "nfaa",
+      "license": "NoobAI-XL licence (fair-ai, non-commercial)",
+      "family": "sdxl",
+      "loraCivitai": ["NoobAI", "Illustrious"],
+      "loraHuggingFace": ["OnomaAIResearch/Illustrious-xl-early-release-v0", "Laxhar/noobai-XL-1.1"],
+      "pageUrl": "https://huggingface.co/Laxhar/noobai-XL-1.1",
+      "description": "Illustrious-based anime SDXL trained on Danbooru + e621. Tagged not-for-all-audiences on Hugging Face.",
+      "tips": "Start prompts with 'masterpiece, best quality, newest, absurdres, highres'.",
+      "promptGuide": "Comma-separated Danbooru tags in lowercase, no sentences. Always start with 'masterpiece, best quality, newest, absurdres, highres'. Then the count tag (1girl, 1boy, 2girls, no humans), 'solo' if one person, a character and series name only if the user named one, then appearance (hair, eyes, clothing), pose and action, expression, setting, light and weather, framing (upper body, full body, looking at viewer). It also knows tags for animal characters. Use real tag names. Negative prompt: short quality tags (worst quality, old, early, low quality, lowres, bad hands, signature, watermark).",
+      "files": {
+        "model": {"role": "model", "repo": "Laxhar/noobai-XL-1.1", "path": "NoobAI-XL-v1.1.safetensors", "sizeGb": 7.11},
+        "vae": {"role": "vae", "repo": "madebyollin/sdxl-vae-fp16-fix", "path": "sdxl_vae.safetensors", "sizeGb": 0.33}
+      },
+      "defaults": {"width": 1024, "height": 1024, "steps": 28, "cfgScale": 5.5, "sampler": "euler_a", "scheduler": "default", "negativePrompt": "worst quality, old, early, low quality, lowres, signature, username, logo, bad hands, mutated hands"},
+      "tiers": [
+        {"minVramGb": 0, "files": ["model", "vae"], "settings": {"weightType": "q8_0", "offloadToCpu": true, "vaeTiling": true}},
+        {"minVramGb": 8, "files": ["model", "vae"]}
+      ],
+      "samplePrompts": [
+        "masterpiece, best quality, newest, absurdres, highres, 1girl, fox ears, fox tail, kimono, shrine, torii, autumn leaves, smile",
+        "masterpiece, best quality, newest, absurdres, highres, 1boy, cyberpunk, hood, neon lights, rain, glowing eyes, cowboy shot",
+        "masterpiece, best quality, newest, absurdres, highres, anthro wolf, knight armor, castle, banner, heroic pose",
+        "masterpiece, best quality, newest, absurdres, highres, 1girl, watercolor (medium), flower field, sun hat, white dress, wind",
+        "masterpiece, best quality, newest, absurdres, highres, no humans, scenery, cozy room, bookshelf, cat, window, rain, lamp light"
+      ]
+    },
+    {
+      "id": "wai-illustrious-v17",
+      "name": "WAI-illustrious-SDXL v17",
+      "publisher": "WAI0731",
+      "released": "2026-04",
+      "category": "nfaa",
+      "license": "FAIPL-1.0-SD (Illustrious-derived)",
+      "family": "sdxl",
+      "loraCivitai": ["Illustrious", "NoobAI"],
+      "loraHuggingFace": ["OnomaAIResearch/Illustrious-xl-early-release-v0", "OnomaAIResearch/Illustrious-XL-v2.0"],
+      "pageUrl": "https://huggingface.co/IbarakiDouji/WAI-NSFW-illustrious-SDXL",
+      "description": "The most downloaded anime SDXL fine-tune (formerly WAI-NSFW-illustrious), built on Illustrious XL. Clean, vivid anime style with strong character knowledge. Tagged not-for-all-audiences. Downloaded from a Hugging Face mirror (IbarakiDouji) whose file matches the official Civitai v17 checksum.",
+      "promptGuide": "Comma-separated Danbooru tags in lowercase, no sentences, 15 to 30 tags. Always start with 'masterpiece,best quality,amazing quality,'. Then the count tag (1girl, 1boy, 2girls, no humans), 'solo' if one person, a character and series name only if the user named one, then appearance, clothing, pose, expression, setting, light, framing. End with the rating tag 'general'; use 'sensitive' instead only when the user explicitly asks for a suggestive image. Keep the negative prompt short: bad quality, worst quality, worst detail, sketch, censor, and 'nsfw' unless the user asks for adult content.",
+      "tips": "Danbooru tags. Start with 'masterpiece,best quality,amazing quality,' and keep quality tags and the negative prompt short; long ones blur the image. Rating tags control content: general, sensitive, nsfw, explicit. Put 'nsfw' in the negative prompt to keep results safe. Use sizes above 1024x1024, e.g. 1024x1344.",
+      "files": {
+        "model": {"role": "model", "repo": "IbarakiDouji/WAI-NSFW-illustrious-SDXL", "path": "waiIllustriousSDXL_v170.safetensors", "sizeGb": 6.94},
+        "vae": {"role": "vae", "repo": "madebyollin/sdxl-vae-fp16-fix", "path": "sdxl_vae.safetensors", "sizeGb": 0.33}
+      },
+      "defaults": {"width": 1024, "height": 1344, "steps": 28, "cfgScale": 6.0, "sampler": "euler_a", "scheduler": "default", "negativePrompt": "bad quality, worst quality, worst detail, sketch, censor"},
+      "tiers": [
+        {"minVramGb": 0, "files": ["model", "vae"], "settings": {"width": 832, "height": 1216, "weightType": "q8_0", "offloadToCpu": true, "vaeTiling": true}},
+        {"minVramGb": 8, "files": ["model", "vae"]}
+      ],
+      "samplePrompts": [
+        "masterpiece,best quality,amazing quality, 1girl, solo, long black hair, red eyes, turtleneck sweater, reading book, cafe, morning light, window, smile, looking at viewer, general",
+        "masterpiece,best quality,amazing quality, 1girl, elf, pointy ears, silver armor, holding sword, forest, dappled sunlight, dynamic pose, general",
+        "masterpiece,best quality,amazing quality, 1girl, sun hat, white sundress, beach, ocean, sunset, holding seashell, from side, general",
+        "masterpiece,best quality,amazing quality, 1boy, 1girl, yukata, summer festival, fireworks, night sky, holding hands, from behind, general",
+        "masterpiece,best quality,amazing quality, hatsune miku, twintails, concert stage, glowstick, crowd, spotlight, dynamic angle, general"
+      ]
+    },
+    {
+      "id": "redcraft-redz-zit",
+      "name": "REDCraft REDZ v1.5 (Z-Image Turbo)",
+      "publisher": "GuangyuanSD",
+      "released": "2025-12",
+      "category": "nfaa",
+      "license": "Apache-2.0",
+      "family": "z-image",
+      "pageUrl": "https://huggingface.co/GuangyuanSD/REDCraft-DarkBeast-Z-Image-TURBO",
+      "description": "Community Z-Image Turbo fine-tune focused on uncensored realism. Tagged not-for-all-audiences. Ships as BF16, quantized to Q8 while loading (slower first load).",
+      "tips": "Same as Z-Image Turbo: 8 steps, CFG 1.",
+      "promptGuide": "One paragraph of plain, concrete English sentences, 40 to 90 words, written like a caption for a realistic photo: the kind of shot, the subject (people with an adult age), what they are doing, the setting, the light, the lens or film look, the mood. Words that must appear in the image go in double quotes. No tag lists and no quality words like 'masterpiece' or '8k'.",
+      "files": {
+        "dit-bf16": {"role": "diffusion", "repo": "GuangyuanSD/REDCraft-DarkBeast-Z-Image-TURBO", "path": "RedCraft-ZImageTurbo/REDZ-v1.5-BF16-diffusion-model.safetensors", "sizeGb": 12.31},
+        "llm-q8": {"role": "llm", "repo": "unsloth/Qwen3-4B-Instruct-2507-GGUF", "path": "Qwen3-4B-Instruct-2507-Q8_0.gguf", "sizeGb": 4.28},
+        "llm-q4": {"role": "llm", "repo": "unsloth/Qwen3-4B-Instruct-2507-GGUF", "path": "Qwen3-4B-Instruct-2507-Q4_K_M.gguf", "sizeGb": 2.5},
+        "vae": {"role": "vae", "repo": "Comfy-Org/z_image_turbo", "path": "split_files/vae/ae.safetensors", "sizeGb": 0.34}
+      },
+      "defaults": {"width": 1024, "height": 1024, "steps": 8, "cfgScale": 1.0, "sampler": "default", "scheduler": "default", "offloadToCpu": true},
+      "tiers": [
+        {"minVramGb": 0, "files": ["dit-bf16", "llm-q4", "vae"], "settings": {"weightType": "q4_K", "width": 768, "height": 768, "vaeTiling": true}},
+        {"minVramGb": 8, "files": ["dit-bf16", "llm-q4", "vae"], "settings": {"weightType": "q4_K"}},
+        {"minVramGb": 12, "files": ["dit-bf16", "llm-q8", "vae"], "settings": {"weightType": "q8_0"}},
+        {"minVramGb": 24, "files": ["dit-bf16", "llm-q8", "vae"], "settings": {"offloadToCpu": false}}
+      ],
+      "samplePrompts": [
+        "A cinematic photo of a woman in a silk qipao leaning on a vintage Shanghai balcony at dusk, warm lantern light, soft focus, film grain",
+        "A fashion editorial photo of a man in a tailored black suit on a rainy Tokyo crosswalk at night, neon reflections, 50mm lens",
+        "A portrait of a woman in her forties reading a newspaper by a sunlit window, linen dress, soft shadows, Kodak Portra colors",
+        "A Taipei night market food stall, the vendor flipping skewers over open flames, smoke and bokeh lights",
+        "A black-and-white gym portrait of a muscular boxer taping his hands, dramatic rim light, sweat, high contrast"
+      ]
+    },
+    {
+      "id": "noct-q-v4",
+      "name": "Noct Q V4 (Qwen-Image 2.1)",
+      "publisher": "Noctaluna",
+      "released": "2026-09",
+      "category": "nfaa",
+      "license": "Qwen Research License (non-commercial)",
+      "family": "qwen-image-2.1",
+      "pageUrl": "https://huggingface.co/Noctaluna/Noct-Q-Uncensored-Qwen-Image-2.1",
+      "description": "Uncensored photoreal fine-tune of Qwen-Image 2.1 that keeps the base model's readable text and also does anime and painted styles. Tagged not-for-all-audiences. Ships as a 7.3 GB INT8 file that the engine runs directly.",
+      "promptGuide": "English prose like a detailed photo caption, 50 to 110 words: the kind of shot first (a photograph of, a close-up of), then the person with an adult age ('a woman in her twenties'), their look and clothing, what they do, where, the light, and the framing and camera angle. It can also do anime and painted styles if the style is named first. Text that must appear goes in double quotes. No tag lists. Negative prompt: artifacts, low quality, blurry, bad hands, wrong number of fingers.",
+      "tips": "Write prose like a photo caption: the kind of shot, then the person with an adult age ('a woman in her twenties'), what they do, where, the light, the framing. No tag lists. CFG 3 with the negative prompt follows prompts best; CFG 1 is about twice as fast but ignores the negative.",
+      "files": {
+        "dit-int8": {"role": "diffusion", "repo": "Noctaluna/Noct-Q-Uncensored-Qwen-Image-2.1", "path": "NoctQ_V4_int8_convrot.safetensors", "sizeGb": 7.26},
+        "llm-q8": {"role": "llm", "repo": "Qwen/Qwen3-VL-8B-Instruct-GGUF", "path": "Qwen3VL-8B-Instruct-Q8_0.gguf", "sizeGb": 8.71},
+        "llm-q4": {"role": "llm", "repo": "Qwen/Qwen3-VL-8B-Instruct-GGUF", "path": "Qwen3VL-8B-Instruct-Q4_K_M.gguf", "sizeGb": 5.03},
+        "vae": {"role": "vae", "repo": "Comfy-Org/Qwen-Image-2.1", "path": "vae/qwen_image_2.1_vae_bf16.safetensors", "sizeGb": 0.68}
+      },
+      "defaults": {"width": 1024, "height": 1536, "steps": 25, "cfgScale": 3.0, "sampler": "euler", "scheduler": "default", "offloadToCpu": true, "negativePrompt": "artifacts, washed-out colors, low quality, low resolution, blurry, indistinct, missing fingers, badly drawn hands, wrong number of fingers"},
+      "tiers": [
+        {"minVramGb": 0, "files": ["dit-int8", "llm-q4", "vae"], "settings": {"width": 768, "height": 1152, "vaeTiling": true}},
+        {"minVramGb": 8, "files": ["dit-int8", "llm-q4", "vae"]},
+        {"minVramGb": 16, "files": ["dit-int8", "llm-q8", "vae"]},
+        {"minVramGb": 24, "files": ["dit-int8", "llm-q8", "vae"], "settings": {"offloadToCpu": false}}
+      ],
+      "samplePrompts": [
+        "A photograph of a woman in her twenties with long wavy chestnut hair in an oversized white linen shirt, sitting on a wooden jetty over a calm lake at sunrise, bare feet in the water, holding a mug. Soft golden light from the left, mist on the lake, full body from a slightly low angle.",
+        "A flash photograph of a woman in her thirties in a sequined black dress laughing at a rooftop party at night, city skyline behind her, direct on-camera flash, slight motion blur.",
+        "A photograph of a man in his late twenties carrying a surfboard out of the sea at golden hour, wet skin, backlit spray, full body, shot from the beach.",
+        "A photograph of a woman in her twenties in a striped linen shirt steering a sailboat, turquoise Mediterranean water, harsh midday sun, wide angle.",
+        "A photograph of a diner window at night under a neon sign reading \"OPEN ALL NIGHT\", a woman in her thirties in a leather jacket sipping coffee inside, rain reflections on the street."
+      ]
+    }
+  ]
+}
